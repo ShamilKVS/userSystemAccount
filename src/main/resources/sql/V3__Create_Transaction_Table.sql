@@ -7,5 +7,5 @@ CREATE TABLE transactions (
     amount DECIMAL(10, 2) NOT NULL,
     transaction_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (prduct_id) REFERENCES products(id)
+    FOREIGN KEY (product_id) REFERENCES products(id)
 );

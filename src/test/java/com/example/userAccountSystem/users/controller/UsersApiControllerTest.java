@@ -8,11 +8,10 @@ import com.example.userAccountSystem.users.service.UserService;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -21,6 +20,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@ExtendWith(MockitoExtension.class)
 public class UsersApiControllerTest {
 
     @InjectMocks
@@ -39,7 +39,6 @@ public class UsersApiControllerTest {
 
     @BeforeEach
     public void setup() {
-        MockitoAnnotations.openMocks(this);
         mockMvc = MockMvcBuilders.standaloneSetup(usersApiController).build();
     }
 
@@ -60,10 +59,12 @@ public class UsersApiControllerTest {
         createJson.put("lastName", "Ronaldo");
 
         when(userService.createUser(any(UserDto.class))).thenReturn(userDto);
-        when(serialize.serialize(any(UserDto.class))).thenReturn(jsonObject.toString());
+//        when(serialize.serialize(any(UserDto.class))).thenReturn(jsonObject.toString());
 
-        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
-                        .content(createJson.toString())).andExpect(status().isOk())
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson.toString()))
+                .andExpect(status().isOk())
                 .andExpect(content().json(jsonObject.toString()));
 
         verify(userService, times(1)).createUser(any(UserDto.class));
@@ -84,17 +85,16 @@ public class UsersApiControllerTest {
         jsonObject.put("firstName", "Cristiano");
         jsonObject.put("lastName", "Ronaldo");
 
-        JSONObject product = new JSONObject();
-        product.put("productId",1);
-        product.put("quantity",2);
-
+        JSONObject productJson = new JSONObject();
+        productJson.put("productId", 1);
+        productJson.put("quantity", 2);
 
         when(userReadService.getUserById(1L)).thenReturn(userDto);
         when(serialize.serialize(any(UserDto.class))).thenReturn(jsonObject.toString());
 
         mockMvc.perform(post("/users/1/purchase")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(product.toString()))
+                        .content(productJson.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().json(jsonObject.toString()));
 

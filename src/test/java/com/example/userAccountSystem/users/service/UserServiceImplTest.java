@@ -10,9 +10,10 @@ import com.example.userAccountSystem.users.data.UserRepository;
 import com.example.userAccountSystem.users.handler.UserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
     @Mock
@@ -32,7 +34,6 @@ public class UserServiceImplTest {
     @Mock
     private ProductRepository productRepository;
 
-
     @InjectMocks
     private UserServiceImpl userService;
 
@@ -42,7 +43,6 @@ public class UserServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.openMocks(this);
         user = new User();
         user.setId(1L);
         user.setFirstName("Cristiano");
@@ -152,15 +152,13 @@ public class UserServiceImplTest {
 
     @Test
     public void testHandleOptimisticLockingFailure() {
-
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
         doThrow(new OptimisticLockingFailureException("Test exception"))
                 .when(userRepository).save(any(User.class));
 
-
-        final Purchase purchase =  new Purchase();
+        final Purchase purchase = new Purchase();
         purchase.setProductId(1L);
         purchase.setQuantity(2L);
         Exception exception = assertThrows(OptimisticLockingFailureException.class, () -> {
