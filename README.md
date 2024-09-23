@@ -30,22 +30,18 @@ The User Account System is a Spring Boot application that manages user accounts,
 
 ### Clone the Repository
 
-```bash
-git clone https://github.com/ShamilKVS/userAccountSystem.git
-cd userAccountSystem
-Build and Run with Docker
+[Clone the repository](https://github.com/ShamilKVS/userAccountSystem.git) and navigate into the directory:
+
+### Build and Run with Docker
 Ensure that your Docker daemon is running.
 Build and run the application using Docker Compose:
-bash
-Copy code
-docker-compose up --build
-Accessing the Application
+
+- `docker build . -t user_account_system`
+- `docker-compose up -d`
+### Accessing the Application
 Once the application is running, you can access the APIs at:
 
 Base URL: http://localhost:8080
-Swagger UI
-Swagger UI is available for testing the API endpoints. You can access it at:
-
-bash
-Copy code
+#### Swagger UI
+- Swagger UI is integrated into the application for testing and exploring the API endpoints. You can access it at:
 http://localhost:8080/swagger-ui.html
