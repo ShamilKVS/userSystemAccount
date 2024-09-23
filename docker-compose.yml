@@ -1,0 +1,8 @@
+
+version: '3.7'
+services:
+  maven17-backend:
+    image: ekyc:latest
+    container_name: ekyc-backend
+    ports:
+      - "8081:8081"

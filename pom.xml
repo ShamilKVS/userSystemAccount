@@ -10,7 +10,6 @@
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>userAccountSystem</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>userAccountSystem</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
@@ -77,6 +76,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>userAccountSystem</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
