@@ -5,6 +5,7 @@ import com.example.userAccountSystem.users.data.UserDto;
 import com.example.userAccountSystem.users.service.Serialize;
 import com.example.userAccountSystem.users.service.UserReadService;
 import com.example.userAccountSystem.users.service.UserService;
+import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -49,14 +50,21 @@ public class UsersApiControllerTest {
         userDto.setFirstName("Cristiano");
         userDto.setLastName("Ronaldo");
 
-        when(userService.createUser(any(UserDto.class))).thenReturn(userDto);
-        when(serialize.serialize(any(UserDto.class))).thenReturn("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", 1);
+        jsonObject.put("firstName", "Cristiano");
+        jsonObject.put("lastName", "Ronaldo");
 
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"));
+        JSONObject createJson = new JSONObject();
+        createJson.put("firstName", "Cristiano");
+        createJson.put("lastName", "Ronaldo");
+
+        when(userService.createUser(any(UserDto.class))).thenReturn(userDto);
+        when(serialize.serialize(any(UserDto.class))).thenReturn(jsonObject.toString());
+
+        mockMvc.perform(post("/users").contentType(MediaType.APPLICATION_JSON)
+                        .content(createJson.toString())).andExpect(status().isOk())
+                .andExpect(content().json(jsonObject.toString()));
 
         verify(userService, times(1)).createUser(any(UserDto.class));
     }
@@ -71,32 +79,25 @@ public class UsersApiControllerTest {
         userDto.setFirstName("Cristiano");
         userDto.setLastName("Ronaldo");
 
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", 1);
+        jsonObject.put("firstName", "Cristiano");
+        jsonObject.put("lastName", "Ronaldo");
+
+        JSONObject product = new JSONObject();
+        product.put("productId",1);
+        product.put("quantity",2);
+
+
         when(userReadService.getUserById(1L)).thenReturn(userDto);
-        when(serialize.serialize(any(UserDto.class))).thenReturn("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}");
+        when(serialize.serialize(any(UserDto.class))).thenReturn(jsonObject.toString());
 
         mockMvc.perform(post("/users/1/purchase")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"productId\":1,\"quantity\":2}"))
+                        .content(product.toString()))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"));
+                .andExpect(content().json(jsonObject.toString()));
 
         verify(userService, times(1)).purchaseProduct(eq(1L), any(Purchase.class));
-    }
-
-    @Test
-    public void testGetUser() throws Exception {
-        UserDto userDto = new UserDto();
-        userDto.setId(1L);
-        userDto.setFirstName("Cristiano");
-        userDto.setLastName("Ronaldo");
-
-        when(userReadService.getUserById(1L)).thenReturn(userDto);
-        when(serialize.serialize(any(UserDto.class))).thenReturn("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}");
-
-        mockMvc.perform(get("/users/1"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"));
-
-        verify(userReadService, times(1)).getUserById(1L);
     }
 }

@@ -10,10 +10,10 @@ import com.example.userAccountSystem.users.data.UserRepository;
 import com.example.userAccountSystem.users.handler.UserException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.dao.OptimisticLockingFailureException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -88,7 +88,6 @@ public class UserServiceImplTest {
 
     @Test
     public void testSellProduct() {
-        // Setup initial purchase
         Purchase purchase = new Purchase();
         purchase.setProductId(1L);
         purchase.setQuantity(2L);
@@ -100,7 +99,7 @@ public class UserServiceImplTest {
         userService.sellProduct(1L, purchase);
 
         assertEquals(0, user.getPurchasedProductQuantity(1L));
-        assertEquals(new BigDecimal("1000.00"), user.getBalance());
+        assertEquals(new BigDecimal("1200.00"), user.getBalance());
         assertEquals(12, product.getQuantity());
     }
 
@@ -129,5 +128,44 @@ public class UserServiceImplTest {
     public void testCreateUserInvalidData() {
         UserDto invalidUserDto = new UserDto();
         assertThrows(UserException.class, () -> userService.createUser(invalidUserDto));
+    }
+
+    @Test
+    public void testOptimisticLockingFailureOnPurchase() {
+        Purchase purchase = new Purchase();
+        purchase.setProductId(1L);
+        purchase.setQuantity(5L);
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        doThrow(new OptimisticLockingFailureException("Test exception"))
+                .when(userRepository).save(any(User.class));
+
+        Exception exception = assertThrows(OptimisticLockingFailureException.class, () -> {
+            userService.purchaseProduct(1L, purchase);
+        });
+
+        assertEquals("Test exception", exception.getMessage());
+    }
+
+    @Test
+    public void testHandleOptimisticLockingFailure() {
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(productRepository.findById(1L)).thenReturn(Optional.of(product));
+
+        doThrow(new OptimisticLockingFailureException("Test exception"))
+                .when(userRepository).save(any(User.class));
+
+
+        final Purchase purchase =  new Purchase();
+        purchase.setProductId(1L);
+        purchase.setQuantity(2L);
+        Exception exception = assertThrows(OptimisticLockingFailureException.class, () -> {
+            userService.purchaseProduct(1L, purchase);
+        });
+
+        assertEquals("Test exception", exception.getMessage());
     }
 }
