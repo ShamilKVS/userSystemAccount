@@ -1,0 +1,102 @@
+package com.example.userAccountSystem.users.controller;
+
+import com.example.userAccountSystem.users.data.Purchase;
+import com.example.userAccountSystem.users.data.UserDto;
+import com.example.userAccountSystem.users.service.Serialize;
+import com.example.userAccountSystem.users.service.UserReadService;
+import com.example.userAccountSystem.users.service.UserService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+public class UsersApiControllerTest {
+
+    @InjectMocks
+    private UsersApiController usersApiController;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private UserReadService userReadService;
+
+    @Mock
+    private Serialize serialize;
+
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    public void setup() {
+        MockitoAnnotations.openMocks(this);
+        mockMvc = MockMvcBuilders.standaloneSetup(usersApiController).build();
+    }
+
+    @Test
+    public void testCreateUser() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setFirstName("Cristiano");
+        userDto.setLastName("Ronaldo");
+
+        when(userService.createUser(any(UserDto.class))).thenReturn(userDto);
+        when(serialize.serialize(any(UserDto.class))).thenReturn("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}");
+
+        mockMvc.perform(post("/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"));
+
+        verify(userService, times(1)).createUser(any(UserDto.class));
+    }
+
+    @Test
+    public void testPurchase() throws Exception {
+        Purchase purchase = new Purchase();
+        purchase.setProductId(1L);
+        purchase.setQuantity(2L);
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setFirstName("Cristiano");
+        userDto.setLastName("Ronaldo");
+
+        when(userReadService.getUserById(1L)).thenReturn(userDto);
+        when(serialize.serialize(any(UserDto.class))).thenReturn("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}");
+
+        mockMvc.perform(post("/users/1/purchase")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"productId\":1,\"quantity\":2}"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"));
+
+        verify(userService, times(1)).purchaseProduct(eq(1L), any(Purchase.class));
+    }
+
+    @Test
+    public void testGetUser() throws Exception {
+        UserDto userDto = new UserDto();
+        userDto.setId(1L);
+        userDto.setFirstName("Cristiano");
+        userDto.setLastName("Ronaldo");
+
+        when(userReadService.getUserById(1L)).thenReturn(userDto);
+        when(serialize.serialize(any(UserDto.class))).thenReturn("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}");
+
+        mockMvc.perform(get("/users/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"id\":1,\"firstName\":\"Cristiano\",\"lastName\":\"Ronaldo\"}"));
+
+        verify(userReadService, times(1)).getUserById(1L);
+    }
+}
