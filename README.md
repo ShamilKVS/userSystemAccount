@@ -31,7 +31,7 @@ The User Account System is a Spring Boot application that manages user accounts,
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/userAccountSystem.git
+git clone https://github.com/ShamilKVS/userAccountSystem.git
 cd userAccountSystem
 Build and Run with Docker
 Ensure that your Docker daemon is running.
